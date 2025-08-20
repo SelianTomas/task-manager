@@ -1,0 +1,14 @@
+{% extends 'tasks/base.html' %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<h2>Registrácia</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Registrovať</button>
+</form>
+
+<p>Už máš účet? <a href="{% url 'login' %}">Prihlás sa</a></p>
+{% endblock %}

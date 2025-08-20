@@ -1,17 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="sk">
 <head>
-    <title>Task Manager</title>
+    <meta charset="UTF-8">
+    <title>{% block title %}Task Manager{% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="navbar">
-        <a href="{% url 'task_list' %}">Home</a>
-        <a href="{% url 'task_create' %}">New Task</a>
-    </div>
-    <div class="container">
+    <header>
+        <h1>Task Manager</h1>
+        <nav>
+            <a href="{% url 'home' %}">Home</a>
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
         {% block content %}{% endblock %}
-    </div>
+    </main>
 </body>
 </html>
