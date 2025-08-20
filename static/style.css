@@ -1,0 +1,19 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+.navbar {
+    background: #333;
+    padding: 10px;
+}
+.navbar a {
+    color: white;
+    margin-right: 15px;
+    text-decoration: none;
+}
+.container {
+    margin-top: 20px;
+}
+button {
+    padding: 5px 10px;
+}
