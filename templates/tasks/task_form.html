@@ -1,9 +1,11 @@
 {% extends 'tasks/base.html' %}
 {% block content %}
-<h2>{% if form.instance.pk %}Edit{% else %}New{% endif %} Task</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Save</button>
-</form>
+  <h2>{% if form.instance.pk %}Edit{% else %}New{% endif %} Task</h2>
+  <form method="post" action="{% if form.instance.pk %}{% url 'task_update' form.instance.pk %}{% else %}{% url 'task_create' %}{% endif %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">
+      {% if form.instance.pk %}Update{% else %}Add{% endif %}
+    </button>
+  </form>
 {% endblock %}
