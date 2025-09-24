@@ -1,0 +1,14 @@
+<h2>Admin Dashboard</h2>
+<ul>
+  <li><a href="{% url 'admin:index' %}">Django Admin</a></li>
+  <li><a href="{% url 'task_list' %}">All Tasks</a></li>
+</ul>
+
+
+@login_required
+@permission_required('auth.change_user', raise_exception=True)
+def admin_dashboard(request):
+    return render(request, 'tasks/admin_dashboard.html')
+
+
+path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard')

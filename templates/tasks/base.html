@@ -7,25 +7,31 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <header>
-        <h1>Task Manager</h1>
-        <nav>
-            <a href="{% url 'home' %}">Home</a>
-            {% if user.is_authenticated %}
-                <form method="post" action="{% url 'account_logout' %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit">Logout</button>
-                </form>
-            {% else %}
-                <a href="{% url 'account_login' %}">Login</a>
-                <a href="{% url 'account_signup' %}">Sign Up</a>
-            {% endif %}
-        </nav>
+<header>
+  <h1>Task Manager</h1>
+  <nav>
+    <a href="{% url 'task_list' %}">Home</a>
+    {% if user.is_authenticated %}
+      {% if perms.tasks.add_task %}
+        <a href="{% url 'task_create' %}">New Task</a>
+      {% endif %}
+      <form method="post" action="{% url 'account_logout' %}">
+          {% csrf_token %}
+          <button type="submit">Logout</button>
+      </form>
+      <span>{{ user.username }}</span>
+      {% if user.is_superuser %}
+        <a href="{% url 'admin:index' %}">Admin Dashboard</a>
+      {% endif %}
+    {% else %}
+      <a href="{% url 'account_login' %}">Login</a>
+      <a href="{% url 'account_signup' %}">Sign Up</a>
+    {% endif %}
+  </nav>
+</header>
 
-    </header>
-
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+<main>
+    {% block content %}{% endblock %}
+</main>
 </body>
 </html>

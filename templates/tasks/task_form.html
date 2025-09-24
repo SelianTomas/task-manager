@@ -8,4 +8,41 @@
       {% if form.instance.pk %}Update{% else %}Add{% endif %}
     </button>
   </form>
+
+<form method="post" class="task-form">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn">{% if form.instance.pk %}Update{% else %}Add{% endif %}</button>
+</form>
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+th {
+    background: #333;
+    color: white;
+}
+a {
+    margin-right: 5px;
+    text-decoration: none;
+    color: blue;
+}
+button.btn {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+button.btn:hover {
+    background: #555;
+}
+
+
 {% endblock %}

@@ -1,14 +1,42 @@
 {% extends 'tasks/base.html' %}
+
 {% block content %}
 <h1>My Tasks</h1>
-<ul>
-  {% for task in tasks %}
-    <li>
-      <strong>{{ task.title }}</strong> ({{ task.due_date|default:"no due date" }})
-      {% if task.completed %}✅{% else %}❌{% endif %}
-      <a href="{% url 'task_update' task.pk %}">Edit</a>
-      <a href="{% url 'task_delete' task.pk %}">Delete</a>
-    </li>
-  {% endfor %}
-</ul>
+
+<table border="1" cellpadding="5" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Due</th>
+      <th>Completed</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for task in tasks %}
+    <tr>
+      <td>{{ task.title }}</td>
+      <td>{{ task.due_date|default:"-" }}</td>
+      <td>{% if task.completed %}✅{% else %}❌{% endif %}</td>
+      <td>
+        {% if perms.tasks.change_task %}
+          <a href="{% url 'task_update' task.pk %}">Edit</a>
+        {% endif %}
+        {% if perms.tasks.delete_task %}
+          <a href="{% url 'task_delete' task.pk %}">Delete</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4">No tasks available.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if perms.tasks.add_task %}
+  <p><a href="{% url 'task_create' %}">Add New Task</a></p>
+{% endif %}
+
 {% endblock %}

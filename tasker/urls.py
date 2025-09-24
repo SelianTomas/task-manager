@@ -5,15 +5,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.task_list, name='home'),
-
-    # Allauth (registrácia, login, logout, reset hesla, Google SSO)
+    path('', views.task_list, name='task_list'),
+    path('tasks/', include('tasks.urls')),
     path('accounts/', include('allauth.urls')),
-
-    #  appky
-    path('task/', include('tasks.urls')),
+    path('admin/', admin.site.urls),
 ]
+
 
 # pre obrázky (avatar)
 if settings.DEBUG:
