@@ -1,10 +1,130 @@
 {% extends 'tasks/base.html' %}
+
+{% block title %}Zmazať úlohu - Task Manager{% endblock %}
+
 {% block content %}
-<h2>Delete Task</h2>
-<p>Are you sure you want to delete "{{ task.title }}"?</p>
-<form method="post">
-  {% csrf_token %}
-  <button type="submit">Yes, delete</button>
-  <a href="{% url 'task_list' %}">Cancel</a>
-</form>
+<div class="form-container" style="max-width: 500px;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+        <h2 style="color: #e53e3e; margin-bottom: 1rem;">Zmazať úlohu</h2>
+    </div>
+
+    <!-- Informácie o úlohe -->
+    <div style="background: #fed7d7; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; border-left: 4px solid #e53e3e;">
+        <h3 style="color: #742a2a; margin-bottom: 0.5rem;">📌 {{ task.title }}</h3>
+
+        {% if task.description %}
+            <p style="color: #742a2a; margin-bottom: 1rem;">
+                <strong>📝 Popis:</strong> {{ task.description|truncatechars:150 }}
+            </p>
+        {% endif %}
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem; color: #742a2a;">
+            <div>
+                <strong>📅 Vytvorené:</strong><br>
+                {{ task.created_at|date:"d.m.Y H:i" }}
+            </div>
+
+            {% if task.due_date %}
+                <div>
+                    <strong>⏰ Termín:</strong><br>
+                    {{ task.due_date|date:"d.m.Y" }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 1rem; color: #742a2a;">
+            <strong>✅ Stav:</strong>
+            {% if task.completed %}
+                <span style="color: #22543d;">Dokončené</span>
+            {% else %}
+                <span style="color: #742a2a;">Čaká na dokončenie</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Varovanie -->
+    <div style="background: #fffbeb; border-radius: 12px; padding: 1rem; margin-bottom: 2rem; border-left: 4px solid #d69e2e;">
+        <p style="color: #744210; margin: 0; font-weight: 500;">
+            🚨 <strong>Pozor!</strong> Táto akcia je nevratná. Úloha bude natrvalo odstránená zo systému.
+        </p>
+    </div>
+
+    <!-- Tlačidlá -->
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <button type="submit" class="btn btn-danger" style="min-width: 150px;">
+                🗑️ Áno, zmazať
+            </button>
+
+            <a href="{% url 'task_list' %}" class="btn btn-secondary" style="min-width: 150px; text-align: center;">
+                ❌ Zrušiť
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+/* Špecifické štýly pre potvrdenie mazania */
+.form-container .btn-danger {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 4px 12px rgba(245, 101, 101, 0.4);
+    }
+    50% {
+        box-shadow: 0 6px 16px rgba(245, 101, 101, 0.6);
+    }
+    100% {
+        box-shadow: 0 4px 12px rgba(245, 101, 101, 0.4);
+    }
+}
+
+/* Responzívny dizajn */
+@media (max-width: 768px) {
+    .form-container > div:last-child > div {
+        flex-direction: column;
+    }
+
+    .form-container .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-container > div:nth-child(3) > div {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus na tlačidlo zrušiť (bezpečnejšie)
+    const cancelBtn = document.querySelector('a[href*="task_list"]');
+    if (cancelBtn) {
+        cancelBtn.focus();
+    }
+
+    // Dodatočné potvrdenie pred zmazaním
+    const deleteForm = document.querySelector('form');
+    const deleteBtn = document.querySelector('.btn-danger');
+
+    if (deleteForm && deleteBtn) {
+        deleteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Dvojité potvrdenie
+            if (confirm('Naozaj chcete zmazať túto úlohu? Táto akcia je nevratná!')) {
+                if (confirm('Ste si úplne istí? Úloha "{{ task.title }}" bude natrvalo odstránená.')) {
+                    deleteForm.submit();
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

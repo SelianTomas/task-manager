@@ -1,42 +1,203 @@
 {% extends 'tasks/base.html' %}
 
+{% block title %}Moje úlohy - Task Manager{% endblock %}
+
 {% block content %}
-<h1>My Tasks</h1>
-
-<table border="1" cellpadding="5" cellspacing="0">
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>Due</th>
-      <th>Completed</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for task in tasks %}
-    <tr>
-      <td>{{ task.title }}</td>
-      <td>{{ task.due_date|default:"-" }}</td>
-      <td>{% if task.completed %}✅{% else %}❌{% endif %}</td>
-      <td>
-        {% if perms.tasks.change_task %}
-          <a href="{% url 'task_update' task.pk %}">Edit</a>
+<div class="tasks-container">
+    <div class="tasks-header">
+        <h2>📋 Moje úlohy</h2>
+        {% if perms.tasks.add_task %}
+            <a href="{% url 'task_create' %}" class="btn btn-success">➕ Pridať novú úlohu</a>
         {% endif %}
-        {% if perms.tasks.delete_task %}
-          <a href="{% url 'task_delete' task.pk %}">Delete</a>
-        {% endif %}
-      </td>
-    </tr>
-    {% empty %}
-    <tr>
-      <td colspan="4">No tasks available.</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </div>
 
-{% if perms.tasks.add_task %}
-  <p><a href="{% url 'task_create' %}">Add New Task</a></p>
-{% endif %}
+    {% if tasks %}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>📌 Názov</th>
+                        <th>📝 Popis</th>
+                        <th>📅 Termín</th>
+                        <th>✅ Stav</th>
+                        <th>🛠️ Akcie</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr class="task-row" data-task-id="{{ task.id }}">
+                        <td>
+                            <strong>{{ task.title }}</strong>
+                        </td>
+                        <td>
+                            {% if task.description %}
+                                <div class="task-description">
+                                    {{ task.description|truncatechars:100 }}
+                                </div>
+                            {% else %}
+                                <em style="color: #718096;">Bez popisu</em>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.due_date %}
+                                <span class="due-date" data-date="{{ task.due_date|date:'Y-m-d' }}">
+                                    📅 {{ task.due_date|date:"d.m.Y" }}
+                                </span>
+                            {% else %}
+                                <span style="color: #718096;">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.completed %}
+                                <span class="status-completed">
+                                    ✅ Dokončené
+                                </span>
+                            {% else %}
+                                <span class="status-pending">
+                                    ⏳ Čaká
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="task-actions">
+                                {% if perms.tasks.change_task %}
+                                    <a href="{% url 'task_update' task.pk %}" class="btn-edit" title="Upraviť úlohu">
+                                        ✏️ Upraviť
+                                    </a>
+                                {% endif %}
+                                {% if perms.tasks.delete_task %}
+                                    <a href="{% url 'task_delete' task.pk %}" class="btn-delete" title="Odstrániť úlohu">
+                                        🗑️ Zmazať
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
+        <!-- Štatistiky úloh -->
+        <div class="task-stats" style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div class="stat-card" style="background: rgba(72, 187, 120, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
+                <div style="font-size: 2rem; color: #38a169;">{{ tasks|length }}</div>
+                <div style="color: #2f855a; font-weight: 600;">Celkom úloh</div>
+            </div>
+
+            <div class="stat-card" style="background: rgba(72, 187, 120, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
+                <div style="font-size: 2rem; color: #38a169;">
+                    {% widthratio tasks|length 1 1 as completed_count %}
+                    {% for task in tasks %}
+                        {% if task.completed %}{% add completed_count 1 as completed_count %}{% endif %}
+                    {% endfor %}
+                    {% firstof completed_count 0 %}
+                </div>
+                <div style="color: #2f855a; font-weight: 600;">Dokončené</div>
+            </div>
+
+            <div class="stat-card" style="background: rgba(245, 101, 101, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
+                <div style="font-size: 2rem; color: #e53e3e;">
+                    {% widthratio tasks|length 1 1 as pending_count %}
+                    {% for task in tasks %}
+                        {% if not task.completed %}{% add pending_count 1 as pending_count %}{% endif %}
+                    {% endfor %}
+                    {% firstof pending_count 0 %}
+                </div>
+                <div style="color: #c53030; font-weight: 600;">Čakajúce</div>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Prázdny stav -->
+        <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <h3>Zatiaľ nemáte žiadne úlohy</h3>
+            <p>Začnite pridaním vašej prvej úlohy a organizujte svoj deň!</p>
+
+            {% if perms.tasks.add_task %}
+                <a href="{% url 'task_create' %}" class="btn btn-success">
+                    ➕ Vytvoriť prvú úlohu
+                </a>
+            {% else %}
+                <p style="color: #718096; font-size: 0.9rem;">
+                    Nemáte oprávnenie na pridávanie úloh. Kontaktujte administrátora.
+                </p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+/* Dodatočné štýly špecifické pre task list */
+.task-description {
+    line-height: 1.4;
+    color: #4a5568;
+}
+
+.due-date {
+    font-weight: 500;
+}
+
+/* Indikátor pre blížiaci sa termín */
+.due-date[data-date] {
+    position: relative;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.task-row:hover {
+    background-color: #f8f9ff !important;
+}
+
+.stat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .tasks-header {
+        text-align: center;
+    }
+
+    .task-actions {
+        flex-direction: column;
+    }
+
+    .task-actions a {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Zvýraznenie úloh s blížiacim sa termínom
+    const today = new Date();
+    const dueDates = document.querySelectorAll('.due-date[data-date]');
+
+    dueDates.forEach(function(element) {
+        const dueDate = new Date(element.dataset.date);
+        const diffTime = dueDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+            // Prešlý termín
+            element.style.color = '#e53e3e';
+            element.innerHTML = '🚨 ' + element.textContent;
+        } else if (diffDays <= 3) {
+            // Blíži sa termín
+            element.style.color = '#d69e2e';
+            element.innerHTML = '⚠️ ' + element.textContent;
+        }
+    });
+});
+</script>
 {% endblock %}

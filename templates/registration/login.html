@@ -1,14 +1,203 @@
 {% extends 'tasks/base.html' %}
-{% block title %}Login{% endblock %}
+{% block title %}Prihlásenie - Task Manager{% endblock %}
 
 {% block content %}
-<h2>Prihlásenie</h2>
+<div class="form-container">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🔑</div>
+        <h2>Prihlásenie do systému</h2>
+        <p style="color: #718096; margin-top: 0.5rem;">
+            Zadajte svoje prihlasovacie údaje
+        </p>
+    </div>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Prihlásiť</button>
-</form>
+    <form method="post" class="login-form">
+        {% csrf_token %}
 
-<p>Nemáš účet? <a href="{% url 'register' %}">Registruj sa</a></p>
+        {% if form.non_field_errors %}
+            <div style="background: #fed7d7; color: #742a2a; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #e53e3e;">
+                {% for error in form.non_field_errors %}
+                    <p style="margin: 0;">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Email pole -->
+        <div class="form-group">
+            <label for="{{ form.login.id_for_label }}">
+                📧 Email adresa
+            </label>
+            {{ form.login }}
+            {% if form.login.errors %}
+                <ul class="errorlist">
+                    {% for error in form.login.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <!-- Heslo pole -->
+        <div class="form-group">
+            <label for="{{ form.password.id_for_label }}">
+                🔒 Heslo
+            </label>
+            {{ form.password }}
+            {% if form.password.errors %}
+                <ul class="errorlist">
+                    {% for error in form.password.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <!-- Remember me -->
+        {% if form.remember %}
+            <div class="form-group">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    {{ form.remember }}
+                    <label for="{{ form.remember.id_for_label }}" style="margin: 0; color: #4a5568;">
+                        🧠 Zapamätať si ma
+                    </label>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Tlačidlo prihlásenia -->
+        <div style="margin: 2rem 0;">
+            <button type="submit" class="btn btn-success" style="width: 100%; justify-content: center; font-size: 1.1rem; padding: 1rem;">
+                🚪 Prihlásiť sa
+            </button>
+        </div>
+    </form>
+
+    <!-- Odkazy -->
+    <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e2e8f0;">
+        <p style="color: #718096; margin-bottom: 1rem;">
+            Nemáte ešte účet?
+        </p>
+        <a href="{% url 'account_signup' %}" class="btn btn-secondary" style="margin-bottom: 1rem;">
+            📝 Registrovať sa
+        </a>
+
+        <div>
+            <a href="{% url 'account_reset_password' %}" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">
+                🔑 Zabudli ste heslo?
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Špecifické štýly pre prihlásenie */
+.login-form input[type="email"],
+.login-form input[type="password"] {
+    font-size: 1.1rem;
+    padding: 1rem;
+}
+
+.login-form input[type="checkbox"] {
+    width: auto;
+    margin-right: 0.5rem;
+    transform: scale(1.2);
+}
+
+.form-container {
+    animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hover efekty pre odkazy */
+.form-container a {
+    transition: all 0.3s ease;
+}
+
+.form-container a:hover {
+    transform: translateY(-1px);
+}
+
+/* Loading state pre tlačidlo */
+.btn-success:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+/* Responzívny dizajn */
+@media (max-width: 768px) {
+    .form-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus na email pole
+    const emailInput = document.querySelector('input[type="email"], input[name="login"]');
+    if (emailInput) {
+        emailInput.focus();
+    }
+
+    // Zobrazenie/skrytie hesla
+    const passwordInput = document.querySelector('input[type="password"]');
+    if (passwordInput) {
+        const toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.innerHTML = '👁️';
+        toggleBtn.style.cssText = 'position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.2rem;';
+
+        const container = passwordInput.parentNode;
+        container.style.position = 'relative';
+        container.appendChild(toggleBtn);
+
+        toggleBtn.addEventListener('click', function() {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.innerHTML = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.innerHTML = '👁️';
+            }
+        });
+    }
+
+    // Validácia formulára
+    const form = document.querySelector('.login-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const email = document.querySelector('input[name="login"]').value.trim();
+            const password = document.querySelector('input[name="password"]').value;
+
+            if (!email) {
+                e.preventDefault();
+                alert('Zadajte prosím email adresu!');
+                return false;
+            }
+
+            if (!password) {
+                e.preventDefault();
+                alert('Zadajte prosím heslo!');
+                return false;
+            }
+
+            // Loading indikátor
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '⏳ Prihlasovanie...';
+            submitBtn.disabled = true;
+        });
+    }
+});
+</script>
 {% endblock %}

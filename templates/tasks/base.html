@@ -2,36 +2,83 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Task Manager{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📝</text></svg>">
+
+    <!-- Meta tags pre lepšie SEO -->
+    <meta name="description" content="Moderný task manager pre organizáciu úloh">
+    <meta name="author" content="Task Manager App">
 </head>
 <body>
-<header>
-  <h1>Task Manager</h1>
-  <nav>
-    <a href="{% url 'task_list' %}">Home</a>
-    {% if user.is_authenticated %}
-      {% if perms.tasks.add_task %}
-        <a href="{% url 'task_create' %}">New Task</a>
-      {% endif %}
-      <form method="post" action="{% url 'account_logout' %}">
-          {% csrf_token %}
-          <button type="submit">Logout</button>
-      </form>
-      <span>{{ user.username }}</span>
-      {% if user.is_superuser %}
-        <a href="{% url 'admin:index' %}">Admin Dashboard</a>
-      {% endif %}
-    {% else %}
-      <a href="{% url 'account_login' %}">Login</a>
-      <a href="{% url 'account_signup' %}">Sign Up</a>
-    {% endif %}
-  </nav>
-</header>
+    <header>
+        <div class="header-content">
+            <h1><a href="{% url 'task_list' %}" style="text-decoration: none; color: inherit;">Task Manager</a></h1>
 
-<main>
-    {% block content %}{% endblock %}
-</main>
+            <nav>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'task_list' %}">📋 Úlohy</a>
+
+                    {% if perms.tasks.add_task %}
+                        <a href="{% url 'task_create' %}" class="btn btn-success">➕ Nová úloha</a>
+                    {% endif %}
+
+                    {% if user.is_superuser %}
+                        <a href="{% url 'admin:index' %}">⚙️ Admin</a>
+                    {% endif %}
+
+                    <div class="user-info">
+                        <span>👤 {{ user.username }}</span>
+                        <form method="post" action="{% url 'account_logout' %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="logout-btn">🚪 Odhlásiť</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <a href="{% url 'account_login' %}">🔑 Prihlásenie</a>
+                    <a href="{% url 'account_signup' %}" class="btn">📝 Registrácia</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Zobrazenie správ (ak existujú) -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message message-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer style="text-align: center; padding: 2rem; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+        <p>&copy; 2024 Task Manager. Vytvorené s ❤️ pomocou Django</p>
+    </footer>
+
+    <!-- JavaScript pre budúce vylepšenia -->
+    <script>
+        // Jednoduchý JavaScript pre konfirmáciu mazania
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteLinks = document.querySelectorAll('a[href*="delete"]');
+            deleteLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (!confirm('Naozaj chcete odstrániť túto úlohu?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
