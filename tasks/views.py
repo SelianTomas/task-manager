@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import transaction
 from django.contrib import messages
+from django.utils import timezone
 from .models import Task
 from .forms import TaskForm
 
@@ -30,17 +31,41 @@ def user_can_delete_tasks(user):
 @login_required
 def task_list(request):
     """Zoznam úloh podľa oprávnení používateľa"""
+    # Získanie všetkých taskov podľa oprávnení
     if user_can_see_all_tasks(request.user):
-        # Editor, Manager, Admin, Reader - vidia všetky tasky
-        tasks = Task.objects.all().order_by("-created_at")
+        all_tasks = Task.objects.all()
         can_see_all = True
     else:
-        # Obyčajní používatelia - vidia len svoje tasky
-        tasks = Task.objects.filter(user=request.user).order_by("-created_at")
+        all_tasks = Task.objects.filter(user=request.user)
         can_see_all = False
+
+    # Filtrovanie podľa GET parametra
+    filter_by = request.GET.get('filter', 'all')
+    today = timezone.now().date()
+
+    if filter_by == 'completed':
+        tasks = all_tasks.filter(completed=True)
+    elif filter_by == 'pending':
+        tasks = all_tasks.filter(completed=False)
+    elif filter_by == 'overdue':
+        tasks = all_tasks.filter(completed=False, due_date__lt=today)
+    else:
+        tasks = all_tasks
+
+    tasks = tasks.order_by("-created_at")
+
+    # Štatistiky
+    stats = {
+        'total': all_tasks.count(),
+        'completed': all_tasks.filter(completed=True).count(),
+        'pending': all_tasks.filter(completed=False).count(),
+        'overdue': all_tasks.filter(completed=False, due_date__lt=today).count(),
+    }
 
     context = {
         'tasks': tasks,
+        'stats': stats,
+        'current_filter': filter_by,
         'can_see_all_tasks': can_see_all,
         'can_edit_tasks': user_can_edit_tasks(request.user),
         'can_delete_tasks': user_can_delete_tasks(request.user),
@@ -49,6 +74,7 @@ def task_list(request):
     return render(request, "tasks/task_list.html", context)
 
 
+# Ostatné views zostávajú rovnaké...
 @login_required
 @permission_required('tasks.add_task', raise_exception=True)
 def task_create(request):
@@ -72,13 +98,10 @@ def task_create(request):
 def task_edit(request, pk):
     """Úprava existujúcej úlohy"""
     if user_can_see_all_tasks(request.user):
-        # Editor/Manager/Admin môžu upravovať všetky tasky
         task = get_object_or_404(Task, pk=pk)
     else:
-        # Obyčajní používatelia len svoje
         task = get_object_or_404(Task, pk=pk, user=request.user)
 
-    # Kontrola oprávnení na úpravu
     if not user_can_edit_tasks(request.user) and task.user != request.user:
         messages.error(request, 'Nemáte oprávnenie upravovať túto úlohu.')
         return redirect('task_list')
@@ -106,7 +129,6 @@ def task_delete(request, pk):
     else:
         task = get_object_or_404(Task, pk=pk, user=request.user)
 
-    # Kontrola oprávnení na mazanie
     if not user_can_delete_tasks(request.user) and task.user != request.user:
         messages.error(request, 'Nemáte oprávnenie zmazať túto úlohu.')
         return redirect('task_list')
@@ -126,7 +148,6 @@ def task_toggle_complete(request, pk):
     else:
         task = get_object_or_404(Task, pk=pk, user=request.user)
 
-    # Kontrola oprávnení na úpravu
     if not user_can_edit_tasks(request.user) and task.user != request.user:
         messages.error(request, 'Nemáte oprávnenie upravovať túto úlohu.')
         return redirect('task_list')

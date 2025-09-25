@@ -78,28 +78,44 @@
             </table>
         </div>
 
-        <!-- Štatistiky úloh (používame stats z views) -->
-        <div class="task-stats" style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-            <div class="stat-card" style="background: rgba(72, 187, 120, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
-                <div style="font-size: 2rem; color: #38a169;">{{ stats.total }}</div>
-                <div style="color: #2f855a; font-weight: 600;">Celkom úloh</div>
-            </div>
+        <!-- Filter tlačidlá -->
+<div class="filter-buttons" style="margin: 1rem 0; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+    <a href="{% url 'task_list' %}" class="filter-btn {% if current_filter == 'all' %}active{% endif %}">
+        🏠 Všetky ({{ stats.total }})
+    </a>
+    <a href="{% url 'task_list' %}?filter=completed" class="filter-btn {% if current_filter == 'completed' %}active{% endif %}">
+        ✅ Dokončené ({{ stats.completed }})
+    </a>
+    <a href="{% url 'task_list' %}?filter=pending" class="filter-btn {% if current_filter == 'pending' %}active{% endif %}">
+        ⏳ Čakajúce ({{ stats.pending }})
+    </a>
+    <a href="{% url 'task_list' %}?filter=overdue" class="filter-btn {% if current_filter == 'overdue' %}active{% endif %}">
+        🚨 Po termíne ({{ stats.overdue }})
+    </a>
+</div>
 
-            <div class="stat-card" style="background: rgba(72, 187, 120, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
-                <div style="font-size: 2rem; color: #38a169;">{{ stats.completed }}</div>
-                <div style="color: #2f855a; font-weight: 600;">Dokončené</div>
-            </div>
+<!-- Štatistiky karty (nekliklateľné, len vizuálne) -->
+<div class="task-stats" style="margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+    <div class="stat-card" style="background: rgba(72, 187, 120, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
+        <div style="font-size: 2rem; color: #38a169;">{{ stats.total }}</div>
+        <div style="color: #2f855a; font-weight: 600;">Celkom úloh</div>
+    </div>
 
-            <div class="stat-card" style="background: rgba(245, 101, 101, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
-                <div style="font-size: 2rem; color: #e53e3e;">{{ stats.pending }}</div>
-                <div style="color: #c53030; font-weight: 600;">Čakajúce</div>
-            </div>
+    <div class="stat-card" style="background: rgba(72, 187, 120, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
+        <div style="font-size: 2rem; color: #38a169;">{{ stats.completed }}</div>
+        <div style="color: #2f855a; font-weight: 600;">Dokončené</div>
+    </div>
 
-            <div class="stat-card" style="background: rgba(255, 165, 0, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
-                <div style="font-size: 2rem; color: #d69e2e;">{{ stats.overdue }}</div>
-                <div style="color: #b7791f; font-weight: 600;">Po termíne</div>
-            </div>
-        </div>
+    <div class="stat-card" style="background: rgba(245, 101, 101, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
+        <div style="font-size: 2rem; color: #e53e3e;">{{ stats.pending }}</div>
+        <div style="color: #c53030; font-weight: 600;">Čakajúce</div>
+    </div>
+
+    <div class="stat-card" style="background: rgba(255, 165, 0, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
+        <div style="font-size: 2rem; color: #d69e2e;">{{ stats.overdue }}</div>
+        <div style="color: #b7791f; font-weight: 600;">Po termíne</div>
+    </div>
+</div>
 
     {% else %}
         <!-- Prázdny stav -->
