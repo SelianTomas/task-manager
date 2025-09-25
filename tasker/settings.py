@@ -146,6 +146,7 @@ ACCOUNT_EMAIL_REQUIRED = True  # Email je povinný
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True  # Auto-prihlásenie po potvrdení
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True  # Potvrdenie jedným klikom
+ACCOUNT_LOGOUT_ON_GET = True
 
 # Email nastavenia
 DEFAULT_FROM_EMAIL = 'task-manager@localhost.com'

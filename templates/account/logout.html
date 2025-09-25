@@ -1,0 +1,92 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}Odhlásenie - Task Manager{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="logout-content">
+        <h2>👋 Odhlásenie</h2>
+        <p>Naozaj sa chcete odhlásiť?</p>
+        
+        <div class="logout-actions">
+            <form method="post" action="{% url 'account_logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    🚪 Áno, odhlásiť sa
+                </button>
+            </form>
+            
+            <a href="{% url 'task_list' %}" class="btn btn-secondary">
+                ↩️ Zrušiť
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.logout-content {
+    text-align: center;
+    padding: 2rem;
+}
+
+.logout-content h2 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.logout-content p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.logout-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .logout-actions {
+        flex-direction: column;
+    }
+    
+    .logout-actions .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

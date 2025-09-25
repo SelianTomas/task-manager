@@ -468,3 +468,21 @@ tr:last-child td {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.logout-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+}
