@@ -3,6 +3,7 @@ from django.urls import path, include
 from tasks import views
 from django.conf import settings
 from django.conf.urls.static import static
+from tasks import views
 
 urlpatterns = [
     path('', views.task_list, name='task_list'),

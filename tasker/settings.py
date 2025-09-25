@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "tasker",
     "tasks",
 ]
 
@@ -120,3 +119,19 @@ if not DEBUG:
 # ------- Logging -------
 
 LOGGING = DEFAULT_LOGGING
+
+
+SITE_ID = 1  # Required for django.contrib.sites
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Optional allauth configurations
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_VERIFICATION = 'optional'  # Or 'mandatory' for email confirmation
+LOGIN_REDIRECT_URL = 'task_list'  # Redirect after login
+ACCOUNT_LOGOUT_REDIRECT_URL = 'account_login'  # Redirect after logout
