@@ -7,7 +7,26 @@ from .models import Task
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ["title", "description", "due_date", "status"]  # uprav podľa polí v tvojom modeli
+        fields = ["title", "description", "due_date", "completed"]  # Zmenené z "status" na "completed"
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Zadajte názov úlohy...',
+                'maxlength': 100
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Voliteľný popis úlohy...',
+                'rows': 4
+            }),
+            'due_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'completed': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            })
+        }
 
     def clean_due_date(self):
         due = self.cleaned_data.get("due_date")
