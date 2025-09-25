@@ -1,109 +1,122 @@
-from pathlib import Path
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
+from django.utils.log import DEFAULT_LOGGING
 
+# Načítaj .env zo základného adresára (dva úrovne hore nad settings.py)
 BASE_DIR = Path(__file__).resolve().parent.parent
+# Uisti sa, že load_dotenv hľadá .env v BASE_DIR
+dotenv_path = BASE_DIR / ".env"
+load_dotenv(dotenv_path)
 
-SECRET_KEY = 'replace-me-with-random-key'
-DEBUG = True
-ALLOWED_HOSTS = []
+def get_env(name: str, default=None, required: bool = False):
+    """Získa hodnotu z prostredia, alebo vyvolá výnimku ak required."""
+    val = os.getenv(name, default)
+    if required and (val is None or val == ""):
+        raise ImproperlyConfigured(f"Environment variable {name} is required but not set.")
+    return val
+
+# ------- Základné nastavenia -------
+
+# Pre vývoj: fallback, ak nie je definovaný v prostredí, aby si mohol spustiť server
+_secret = get_env("DJANGO_SECRET_KEY", None)
+if not _secret:
+    # upozorni, že bežíš v nebezpečnom móde
+    # v produkcii by si toto mal zakázať / odstrániť
+    import warnings
+    warnings.warn("DJANGO_SECRET_KEY not found. Using fallback insecure secret key.")
+    SECRET_KEY = "insecure-dev-key-fallback-1234567890"
+else:
+    SECRET_KEY = _secret
+
+DEBUG = get_env("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
+ALLOWED_HOSTS = get_env("DJANGO_ALLOWED_HOSTS", "").split(",")
+
+# ------- Aplikácie, middleware, šablóny -------
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sites',
-
-    # Naša aplikácia
-    'tasks',
-
-    # Allauth
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "tasker",
+    "tasks",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'tasker.urls'
+ROOT_URLCONF = "tasker.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],   # templates folder
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',  # pre allauth
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'tasker.wsgi.application'
+WSGI_APPLICATION = "tasker.wsgi.application"
 
+# ------- Databáza -------
+
+import dj_database_url
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": dj_database_url.config(default=get_env("DATABASE_URL", "sqlite:///db.sqlite3"))
 }
 
-AUTH_PASSWORD_VALIDATORS = []
+# ------- Heslovanie, validátory, medzinárodné -------
 
-LANGUAGE_CODE = 'sk'
-TIME_ZONE = 'Europe/Bratislava'
-USE_I18N = True
-USE_TZ = True
-
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-
-# Media pre upload avatarov
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Allauth nastavenia
-SITE_ID = 1
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# Email backend – pre vývoj zobrazí link v konzole
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
 
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+# ------- Statické / mediá súbory -------
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/accounts/login/'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Nastavenia pre správy (messages)
-from django.contrib.messages import constants as messages
-MESSAGE_TAGS = {
-    messages.DEBUG: 'debug',
-    messages.INFO: 'info',
-    messages.SUCCESS: 'success',
-    messages.WARNING: 'warning',
-    messages.ERROR: 'error',
-}
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# ------- Bezpečnostné nastavenia pre produkciu -------
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    X_FRAME_OPTIONS = "DENY"
+
+# ------- Logging -------
+
+LOGGING = DEFAULT_LOGGING
