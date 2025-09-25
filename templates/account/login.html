@@ -1,0 +1,252 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}Prihlásenie - Task Manager{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>🔑 Prihlásenie</h2>
+    
+    <form method="post" action="{% url 'account_login' %}" class="auth-form">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <!-- Username pole -->
+        <div class="form-group">
+            <label for="{{ form.login.id_for_label }}">
+                👤 Používateľské meno alebo email:
+            </label>
+            {{ form.login }}
+            {% if form.login.errors %}
+                <ul class="errorlist">
+                    {% for error in form.login.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        
+        <!-- Password pole -->
+        <div class="form-group">
+            <label for="{{ form.password.id_for_label }}">
+                🔒 Heslo:
+            </label>
+            {{ form.password }}
+            {% if form.password.errors %}
+                <ul class="errorlist">
+                    {% for error in form.password.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        
+        <!-- Remember me checkbox -->
+        {% if form.remember %}
+            <div class="form-group checkbox-group">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    {{ form.remember }}
+                    <label for="{{ form.remember.id_for_label }}" style="margin: 0;">
+                        💾 Zapamätať si prihlásenie
+                    </label>
+                </div>
+                {% if form.remember.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.remember.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        <!-- Hidden next field -->
+        {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+        {% endif %}
+        
+        <!-- Submit button -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">
+                🚀 Prihlásiť sa
+            </button>
+            
+            <p class="text-center mt-3">
+                Nemáte ešte účet? 
+                <a href="{% url 'account_signup' %}" class="text-primary">
+                    Zaregistrujte sa
+                </a>
+            </p>
+            
+            {% comment %}
+            <!-- Password reset link (ak chcete) -->
+            <p class="text-center mt-2">
+                <a href="{% url 'account_reset_password' %}" class="text-secondary">
+                    Zabudli ste heslo?
+                </a>
+            </p>
+            {% endcomment %}
+        </div>
+    </form>
+</div>
+
+<style>
+.auth-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.auth-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="email"], 
+.auth-form input[type="password"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background: white;
+}
+
+.auth-form input[type="text"]:focus,
+.auth-form input[type="email"]:focus,
+.auth-form input[type="password"]:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    transform: scale(1.2);
+}
+
+.form-actions {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(72, 187, 120, 0.5);
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.alert-danger {
+    background-color: #fed7d7;
+    border: 1px solid #fc8181;
+    color: #742a2a;
+}
+
+.errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+}
+
+.errorlist li {
+    color: #e53e3e;
+    font-size: 0.9rem;
+    padding: 0.25rem 0;
+}
+
+.text-primary {
+    color: #4299e1;
+    text-decoration: none;
+}
+
+.text-primary:hover {
+    color: #3182ce;
+    text-decoration: underline;
+}
+
+.text-secondary {
+    color: #718096;
+    text-decoration: none;
+}
+
+.text-secondary:hover {
+    color: #4a5568;
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+}
+
+/* Animácie */
+.auth-form {
+    animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus na prvé pole
+    const loginInput = document.querySelector('input[name="login"]');
+    if (loginInput) {
+        loginInput.focus();
+    }
+    
+    // Enter key support
+    const form = document.querySelector('.auth-form');
+    if (form) {
+        form.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                form.submit();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

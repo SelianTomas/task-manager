@@ -60,15 +60,20 @@
                         </td>
                         <td>
                             <div class="task-actions">
-                                {% if perms.tasks.change_task %}
+                                {% if can_edit_tasks or task.user == request.user %}
                                     <a href="{% url 'task_update' task.pk %}" class="btn-edit" title="Upraviť úlohu">
                                         ✏️ Upraviť
                                     </a>
                                 {% endif %}
-                                {% if perms.tasks.delete_task %}
-                                    <a href="{% url 'task_delete' task.pk %}" class="btn-delete" title="Odstrániť úlohu">
-                                        🗑️ Zmazať
-                                    </a>
+
+                                {% if can_delete_tasks or task.user == request.user %}
+                                    <form method="post" action="{% url 'task_delete' task.pk %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-delete" title="Odstrániť úlohu"
+                                                onclick="return confirm('Naozaj chcete zmazať úlohu \'{{ task.title }}\'?')">
+                                            🗑️ Zmazať
+                                        </button>
+                                    </form>
                                 {% endif %}
                             </div>
                         </td>
