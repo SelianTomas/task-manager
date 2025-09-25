@@ -78,33 +78,26 @@
             </table>
         </div>
 
-        <!-- Štatistiky úloh -->
+        <!-- Štatistiky úloh (používame stats z views) -->
         <div class="task-stats" style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
             <div class="stat-card" style="background: rgba(72, 187, 120, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
-                <div style="font-size: 2rem; color: #38a169;">{{ tasks|length }}</div>
+                <div style="font-size: 2rem; color: #38a169;">{{ stats.total }}</div>
                 <div style="color: #2f855a; font-weight: 600;">Celkom úloh</div>
             </div>
 
             <div class="stat-card" style="background: rgba(72, 187, 120, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
-                <div style="font-size: 2rem; color: #38a169;">
-                    {% widthratio tasks|length 1 1 as completed_count %}
-                    {% for task in tasks %}
-                        {% if task.completed %}{% add completed_count 1 as completed_count %}{% endif %}
-                    {% endfor %}
-                    {% firstof completed_count 0 %}
-                </div>
+                <div style="font-size: 2rem; color: #38a169;">{{ stats.completed }}</div>
                 <div style="color: #2f855a; font-weight: 600;">Dokončené</div>
             </div>
 
             <div class="stat-card" style="background: rgba(245, 101, 101, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
-                <div style="font-size: 2rem; color: #e53e3e;">
-                    {% widthratio tasks|length 1 1 as pending_count %}
-                    {% for task in tasks %}
-                        {% if not task.completed %}{% add pending_count 1 as pending_count %}{% endif %}
-                    {% endfor %}
-                    {% firstof pending_count 0 %}
-                </div>
+                <div style="font-size: 2rem; color: #e53e3e;">{{ stats.pending }}</div>
                 <div style="color: #c53030; font-weight: 600;">Čakajúce</div>
+            </div>
+
+            <div class="stat-card" style="background: rgba(255, 165, 0, 0.1); padding: 1rem; border-radius: 12px; text-align: center;">
+                <div style="font-size: 2rem; color: #d69e2e;">{{ stats.overdue }}</div>
+                <div style="color: #b7791f; font-weight: 600;">Po termíne</div>
             </div>
         </div>
 
@@ -137,11 +130,6 @@
 
 .due-date {
     font-weight: 500;
-}
-
-/* Indikátor pre blížiaci sa termín */
-.due-date[data-date] {
-    position: relative;
 }
 
 .table-responsive {
