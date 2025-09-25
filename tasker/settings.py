@@ -114,7 +114,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    CSRF_USE_SESSIONS = False
+    CSRF_COOKIE_SECURE = False  # Pre development
+    CSRF_COOKIE_SAMESITE = 'Lax'
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -132,14 +134,23 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-# Allauth nastavení
+# Email backend pre development - vypíše emaily do konzoly
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Allauth nastavenia pre email verifikáciu
 SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-ACCOUNT_EMAIL_VERIFICATION = 'none'  # Pro jednoduchost
-ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-ACCOUNT_EMAIL_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Povinné potvrdenie emailu
+ACCOUNT_EMAIL_REQUIRED = True  # Email je povinný
 ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True  # Auto-prihlásenie po potvrdení
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True  # Potvrdenie jedným klikom
+
+# Email nastavenia
+DEFAULT_FROM_EMAIL = 'task-manager@localhost.com'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025
 
 # Default auto field (opraví warning)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
