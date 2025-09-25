@@ -11,7 +11,7 @@ from .forms import TaskForm
 
 
 def register(request):
-    """Registrácia nového používateľa"""
+    ### Registrácia nového používateľa ###
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
