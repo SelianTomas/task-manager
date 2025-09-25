@@ -13,6 +13,14 @@
     <!-- Meta tags pre lepšie SEO -->
     <meta name="description" content="Moderný task manager pre organizáciu úloh">
     <meta name="author" content="Task Manager App">
+
+        <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome pre ikony (voliteľné) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
@@ -21,26 +29,35 @@
 
             <nav>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'task_list' %}">📋 Úlohy</a>
+                    <a href="{% url 'task_list' %}">
+                        <i class="fas fa-clipboard-list"></i> Úlohy
+                    </a>
 
                     {% if perms.tasks.add_task %}
-                        <a href="{% url 'task_create' %}" class="btn btn-success">➕ Nová úloha</a>
+                        <a href="{% url 'task_create' %}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Nová úloha
+                        </a>
                     {% endif %}
 
                     {% if user.is_superuser %}
-                        <a href="{% url 'admin:index' %}">⚙️ Admin</a>
+                        <a href="{% url 'admin:index' %}">
+                            <i class="fas fa-cog"></i> Admin
+                        </a>
                     {% endif %}
 
                     <div class="user-info">
-                        <span>👤 {{ user.username }}</span>
-                        <form method="post" action="{% url 'account_logout' %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="logout-btn">🚪 Odhlásiť</button>
-                        </form>
+                        <span><i class="fas fa-user"></i> {{ user.username }}</span>
+                        <a href="{% url 'account_logout' %}" class="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Odhlásiť
+                        </a>
                     </div>
                 {% else %}
-                    <a href="{% url 'account_login' %}">🔑 Prihlásenie</a>
-                    <a href="{% url 'account_signup' %}" class="btn">📝 Registrácia</a>
+                    <a href="{% url 'account_login' %}">
+                        <i class="fas fa-sign-in-alt"></i> Prihlásenie
+                    </a>
+                    <a href="{% url 'account_signup' %}" class="btn">
+                        <i class="fas fa-user-plus"></i> Registrácia
+                    </a>
                 {% endif %}
             </nav>
         </div>
