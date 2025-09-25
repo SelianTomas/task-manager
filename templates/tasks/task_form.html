@@ -1,5 +1,7 @@
 {% extends 'tasks/base.html' %}
 
+{% block body_class %}{% if form.instance.pk %}page-task-edit{% else %}page-task-create{% endif %}{% endblock %}
+
 {% block title %}
     {% if form.instance.pk %}Upraviť úlohu{% else %}Nová úloha{% endif %} - Task Manager
 {% endblock %}

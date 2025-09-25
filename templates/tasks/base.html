@@ -14,15 +14,23 @@
     <meta name="description" content="Moderný task manager pre organizáciu úloh">
     <meta name="author" content="Task Manager App">
 
-        <!-- Google Fonts -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Font Awesome pre ikony (voliteľné) -->
+    <!-- Font Awesome pre ikony -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="{% block body_class %}page-default{% endblock %}">
+    <!-- Floating particles -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
     <header>
         <div class="header-content">
             <h1><a href="{% url 'task_list' %}" style="text-decoration: none; color: inherit;">Task Manager</a></h1>
@@ -77,24 +85,56 @@
 
         {% block content %}{% endblock %}
     </main>
+
     <!-- Footer -->
-    <footer style="text-align: center; padding: 2rem; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
-        <p>&copy; 2024 Task Manager. Vytvorené s ❤️ pomocou Django</p>
+    <footer>
+        <p>&copy; 2025 Task Manager. Vytvorené s ❤️ pomocou Django</p>
     </footer>
 
-    <!-- JavaScript pre budúce vylepšenia -->
+    <!-- JavaScript -->
     <script>
-        // Jednoduchý JavaScript pre konfirmáciu mazania
+        // Konfirmácia mazania
         document.addEventListener('DOMContentLoaded', function() {
-            const deleteLinks = document.querySelectorAll('a[href*="delete"]');
-            deleteLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    if (!confirm('Naozaj chcete odstrániť túto úlohu?')) {
+            const deleteButtons = document.querySelectorAll('button[onclick*="confirm"], form[action*="delete"] button');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    if (!this.onclick && !confirm('Naozaj chcete vykonať túto akciu?')) {
                         e.preventDefault();
                     }
                 });
             });
+
+            // Page load animation
+            document.body.style.opacity = '0';
+            document.body.style.transform = 'scale(0.98)';
+
+            setTimeout(() => {
+                document.body.style.transition = 'all 0.5s ease-out';
+                document.body.style.opacity = '1';
+                document.body.style.transform = 'scale(1)';
+            }, 100);
         });
-    </script>
-</body>
-</html>
+
+        // Smooth page transitions
+        const links = document.querySelectorAll('a[href]:not([href^="#"]):not([href^="mailto"]):not([target="_blank"])');
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (link.hostname === window.location.hostname && !link.classList.contains('no-transition')) {
+                    document.body.style.opacity = '0.8';
+                    document.body.style.transform = 'scale(0.98)';
+
+                    setTimeout(() => {
+                        window.location.href = link.href;
+                    }, 150);
+
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // Dynamic background based on time
+        function updateTimeBasedBackground() {
+            const hour = new Date().getHours();
+            const body = document.body;
+
+            if (hour >= 6 && hour <
